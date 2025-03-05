@@ -16,7 +16,7 @@ A tokenizer and indexer
 2. You have some flexibility in the choice of algorithms and file formats for this assignment. You are expected to to explain and justify your approach, any reasonable approach should work.
 
 
-Task1: Tokenizing
+### Task1: Tokenizing
 The first step of indexing is tokenizing documents from the collection. That is, given a raw document you need to produce a sequence of tokens. For the purposes of this assignment, a token is a contiguous sequence of characters which matches a regular expression (of your choice) – that is, any number of letters and numbers, possibly separated by single periods in the middle. For instance, bob and 376 and 98.6 and 192.160.0.1 are all tokens. 123,456 and aunt's are not tokens (each of these examples is two tokens — why?). All alphabetic characters should be converted to lowercase during tokenization, so bob and Bob and BOB are all tokenized into bob.
 
 You should assign a unique integer ID to each term and document in the collection. For instance, you might want to use a token’s hash code as its ID. If you decide to assign IDs, you will need to be able to convert tokens into term IDs and covert doc IDs into document names in order to run queries. This will likely require you to store the maps from term to term_id and from document to doc_id in your inverted index. One way to think about the tokenization process is as a conversion from a document to a sequence of (term_id, doc_id, position) tuples, which needs to be stored in your inverted index.
@@ -38,7 +38,7 @@ with the term ID map:
 						4: in
 						5: wash
 					
-Task2: Indexing
+### Task2: Indexing
 The next step is to record each document’s tokens in an inverted index. The inverted index should consist of a catalog and an inverted file. The inverted list for each term should contain the following information:
 
 A list of IDs of the documents which contain the term, along with the TF of the term within that document and a list of positions within the document where the term occurs. (The first term in a document has position 1, the second term has position 2, etc.)
@@ -50,7 +50,7 @@ The map between document names and their IDs, if required by your design.
 The map between terms and their IDs, if required by your design.
 All inverted lists/files written on the hard drive should be sorted by DocID if using doc-at-a-time technique. This will facilitate merging, in particular with mergesort.
 
-Stemming and Stopping
+#### Stemming and Stopping
 Experiment with the affects of stemming and stop word removal on query performance. To do so, create two separate indexes:
 
 An index where tokens are not stemmed before indexing, and stopwords are removed
@@ -59,7 +59,7 @@ You should use this list of stop words, obtained from NLTK.
 
 You may use any standard stemming library. For instance, the python stemming package and the Java Weka package contain stemmer implementations like Porter stemmer.
 
-Performance Requirements
+#### Performance Requirements
 Your indexing algorithm should meet the following performance requirements. Your design approach should be based on the assumption that the index woud not fit in memory. You need to add a brief explanation of how you met the requirements in your report. You may also be asked during your demo to further explain that.
 
 If you keep partial inverted lists in memory during indexing, you have to limit the number of postings to no more than 1000. In other words, you should not process more than 1000 documents in memory at a time.
@@ -69,10 +69,10 @@ Extra Credit Option: You are permitted to write multiple files during the indexi
 Index Compression (MS students only)
 Store the index in some compressed format and decompress it as needed when accessing it. You should only need to decompress the posting lists corresponding to the query terms. For the sake of this assignment, you may use a software for compression or decompression. For instance, it may be sufficient to run inverted lists through a gzip/gunzip routine in a library.
 
-Task3: Searching
+### Task3: Searching
 Update your solution to HW1 to use your index instead of elasticsearch. Compare your results to those you obtained in HW1. Are they different? If so, why? You dont have to run all 5 models; one VSM, one LM, and BM25 will suffice.
 
-Proximity Search (MS students only)
+#### Proximity Search (MS students only)
 Add one retrieval model, with scoring based on proximity on query terms in the document. You can use the ideas presented in slides, or skipgrams minimum span, or other ngram matching ideas.
 
 Some Hints
@@ -80,21 +80,21 @@ There are many ways to write an indexing algorithm. We have intentionally not sp
 
 The primary challenge is to produce a single index file which uses a variable number of bytes for each term (because their inverted lists have different lengths), without any prior knowledge about how long each list will need to be. Here are a few reasonable approaches you might consider. Your design should be scalable and therefore assume that the final index would not fit in memory.
 
-Option 1- Required: Merging
+#### Option 1- Required: Merging
 
 Create partial inverted lists for all terms in a single pass through the collection. You can process the documents in batches of 1000. As each partial list is filled, append it to the end of a single large index file. When all documents have been processed, run through the inverted files a term at a time and merge the partial lists for each term. This second step can be greatly accelerated if you keep a list of the positions of all the partial lists for each term in some secondary data structure or file.
 
 
-Extra Credit Option: Discontiguous Postings
+#### Extra Credit Option: Discontiguous Postings
 
 Lay out your index file as a series of fixed-length records of, say, 4096 bytes each. Each record will contain a portion of the inverted list for a term. A record will consist of a header followed by a series of inverted list entries. The header will specify the term_id, the number of inverted list entries used in the record, and the file offset of the next record for the term. Records are written to the file in a single pass through the document collection, and the records for a given term are not necessarily adjacent within the index.
 
 
-Extra Credit Option: Multiple passes
+#### Extra Credit Option: Multiple passes
 
 Make multiple passes through the document collection. In each pass, you create the inverted lists for the next 1,000 terms, each in its own file. At the end of each pass, you concatenate the new inverted lists onto the main index file (easy to concatenate the inverted files, but have to manage the catalog/offsets files)
 
-Extra Credit
+### Extra Credit
 These extra problems are provided for students who wish to dig deeper into this project. Extra credit is meant to be significantly harder and more open-ended than the standard problems. We strongly recommend completing all of the above before attempting any of these problems.
 
 Points will be awarded based on the difficulty of the solution you attempt and how far you get. You will receive no credit unless your solution is “at least half right,” as determined by the graders.
